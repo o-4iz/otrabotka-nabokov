@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Отработка навыков деловой переписки — Запрос в ФНС о статусе регистрации юрлица</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Roboto', system-ui, -apple-system, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            padding: 20px;
+            transition: background-color 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), color 0.3s ease;
+        }
+
+        :root {
+            --bg-body: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --border-light: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --accent: #2c5f8a;
+            --accent-hover: #1e4a6e;
+            --success: #15803d;
+            --warning: #b45309;
+            --error: #b91c1c;
+            --info: #2563eb;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --code-bg: #f8fafc;
+            --tooltip-bg: #1e293b;
+            --tooltip-text: #f1f5f9;
+        }
+
+        body.dark {
+            --bg-body: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-light: #334155;
+            --border-hover: #475569;
+            --accent: #60a5fa;
+            --accent-hover: #3b82f6;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --info: #38bdf8;
+            --code-bg: #0f172a;
+            --tooltip-bg: #f1f5f9;
+            --tooltip-text: #0f172a;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-25px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(25px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; backdrop-filter: blur(0px); }
+            to { opacity: 1; backdrop-filter: blur(4px); }
+        }
+
+        @keyframes modalContentFadeIn {
+            from { opacity: 0; transform: scale(0.9) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes modalContentFadeOut {
+            from { opacity: 1; transform: scale(1) translateY(0); }
+            to { opacity: 0; transform: scale(0.9) translateY(30px); }
+        }
+
+        @keyframes modalFadeOut {
+            from { opacity: 1; backdrop-filter: blur(4px); }
+            to { opacity: 0; backdrop-filter: blur(0px); }
+        }
+
+        @keyframes themeRipple {
+            0% { transform: scale(0); opacity: 0.6; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+
+        .theme-ripple {
+            position: fixed;
+            border-radius: 50%;
+            background: #ffffff;
+            pointer-events: none;
+            z-index: 9999;
+            animation: themeRipple 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+        }
+
+        .scenario-panel { animation: slideInLeft 0.4s ease-out; }
+        .editor-panel { animation: fadeInScale 0.4s ease-out; }
+        .results-panel { animation: slideInRight 0.4s ease-out; }
+.history-panel { animation: fadeInUp 0.5s ease-out; }
+        .checklist li { animation: fadeInUp 0.25s ease-out; animation-fill-mode: backwards; }
+        button:active { transform: scale(0.96); transition: transform 0.08s ease; }
+        .para-card { animation: fadeInUp 0.25s ease-out; animation-fill-mode: backwards; }
+        .score-table { animation: fadeInScale 0.3s ease-out; }
+        .recommendation { animation: fadeInUp 0.35s ease-out; }
+        .scenario-card:hover { transform: translateY(-2px); transition: transform 0.2s ease; }
+        button { transition: all 0.2s ease; }
+        button:hover { transform: translateY(-1px); filter: brightness(0.95); }
+        .history-item:hover { transform: translateX(3px); transition: transform 0.15s ease; }
+        .help-icon { transition: all 0.2s ease; }
+        .help-icon:hover { transform: scale(1.08); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0);
+            backdrop-filter: blur(0px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: background 0.25s ease, backdrop-filter 0.25s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.closing { animation: modalFadeOut 0.2s ease forwards; }
+        .modal.show .modal-content { animation: modalContentFadeIn 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards; }
+        .modal.closing .modal-content { animation: modalContentFadeOut 0.2s ease forwards; }
+
+        .modal-content {
+            background: var(--bg-surface);
+            max-width: 750px;
+            width: 90%;
+            border-radius: 28px;
+            padding: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            opacity: 0;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .modal-title h3 { margin: 0; font-size: 1.2rem; }
+
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid var(--text-primary);
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .tooltip-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1002;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tooltip-overlay.show { display: flex; }
+
+        .tooltip-card {
+            background-color: var(--tooltip-bg);
+            color: var(--tooltip-text);
+            padding: 20px 24px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            max-width: 90%;
+            width: 340px;
+            text-align: left;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            animation: fadeInScale 0.2s ease-out;
+        }
+
+        .tooltip-card strong { display: block; margin-bottom: 12px; font-size: 1rem; }
+        .tooltip-card p { margin: 8px 0; }
+
+        .close-modal {
+cursor: pointer;
+            font-size: 28px;
+            line-height: 1;
+            color: var(--text-secondary);
+            padding: 0 8px;
+            transition: color 0.15s ease;
+        }
+
+        .close-modal:hover { color: var(--error); }
+
+        .modal-content pre {
+            white-space: pre-wrap;
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 16px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+        }
+
+        .app-container { max-width: 1400px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .title h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .title p { color: var(--text-secondary); font-size: 0.8rem; }
+
+        .theme-toggle {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover { transform: scale(1.02); }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr 340px;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard { grid-template-columns: 1fr; gap: 20px; }
+            body { padding: 16px; }
+        }
+
+        .scenario-panel {
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .scenario-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .scenario-header i { font-size: 1.8rem; color: var(--accent); }
+        .scenario-header h2 { font-size: 1.2rem; }
+
+        .info-block { margin-bottom: 20px; }
+        .info-block h4 { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .info-block p, .info-block li { font-size: 0.85rem; line-height: 1.5; }
+
+        .checklist { margin: 20px 0; }
+        .checklist h4 { font-weight: 600; margin-bottom: 12px; font-size: 1rem; }
+        .checklist ul { list-style: none; }
+        .checklist li {
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            padding-left: 22px;
+            position: relative;
+        }
+        .checklist li i { position: absolute; left: 0; top: 2px; font-size: 12px; color: var(--accent); }
+
+        .editor-panel {
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .char-counter { font-size: 0.8rem; color: var(--text-secondary); }
+
+        textarea {
+            width: 100%;
+            min-height: 420px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+border-radius: 20px;
+            padding: 16px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            resize: vertical;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(44, 95, 138, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--accent);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        button.secondary {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .results-panel {
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            overflow-y: auto;
+            max-height: 700px;
+        }
+
+        .score-table {
+            background: var(--code-bg);
+            border-radius: 18px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .total {
+            font-weight: 800;
+            border-top: 1px solid var(--border-light);
+            padding-top: 8px;
+            margin-top: 6px;
+        }
+
+        .paragraph-analysis { margin: 16px 0; }
+
+        .para-card {
+            padding: 10px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            background: var(--bg-card);
+            border-left: 6px solid;
+            word-break: break-word;
+        }
+
+        .recommendation {
+            background: var(--code-bg);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 16px;
+            font-size: 0.8rem;
+        }
+
+        .recommendation ul { padding-left: 20px; margin-top: 8px; }
+
+        .history-panel {
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 18px;
+            margin-top: 24px;
+            border: 1px solid var(--border-light);
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .history-item {
+            background: var(--code-bg);
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .green-bg { border-left-color: var(--success); }
+        .yellow-bg { border-left-color: var(--warning); }
+        .red-bg { border-left-color: var(--error); }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--border-light); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <div class="title">
+            <h1><i class="fas fa-gavel"></i> Отработка навыков деловой переписки</h1>
+            <p>Симулятор официального запроса в госорган • ФНС • статус регистрации юрлица</p>
+        </div>
+<button id="themeSwitch" class="theme-toggle"><i class="fas fa-moon"></i> Тёмная тема</button>
+    </div>
+
+    <div class="dashboard">
+        <div class="scenario-panel">
+            <div class="scenario-header">
+                <i class="fas fa-building"></i>
+                <h2>Запрос в ФНС России</h2>
+            </div>
+            <div class="info-block">
+                <h4><i class="fas fa-info-circle"></i> Ситуация</h4>
+                <p>Необходимо получить официальную информацию о статусе поданного заявления на регистрацию юридического лица. Срок рассмотрения истёк, ответа нет.</p>
+            </div>
+            <div class="info-block">
+                <h4><i class="fas fa-map-marker-alt"></i> Исходные данные</h4>
+                <ul style="padding-left: 20px;">
+                    <li>Госорган: Межрайонная инспекция ФНС России № 15</li>
+                    <li>Входящий номер заявления: № 45678/2024 от 10.04.2024</li>
+                    <li>Срок ответа по регламенту: 10 рабочих дней</li>
+                    <li>Заявитель: ООО «ЮрПроект», гендиректор Петров П.П.</li>
+                </ul>
+            </div>
+            <div class="checklist">
+                <h4><i class="fas fa-clipboard-list"></i> Чек-лист требований</h4>
+                <ul id="checklistContainer"></ul>
+            </div>
+            <div class="info-block">
+                <h4><i class="fas fa-file-signature"></i> Требования к письму</h4>
+                <p>✅ Официально-деловой стиль<br>
+                ✅ Чёткая структура (реквизиты, дата, номер, заголовок)<br>
+                ✅ Указание номера и даты исходного заявления<br>
+                ✅ Вежливая, но настойчивая тональность<br>
+                ✅ Объём: 150–250 слов</p>
+            </div>
+        </div>
+
+        <div class="editor-panel">
+            <div class="editor-header">
+                <span><i class="fas fa-file-alt"></i> Текст запроса</span>
+                <span class="char-counter" id="charCount">0 знаков</span>
+            </div>
+            <textarea id="letterInput" placeholder="Введите текст официального запроса в ФНС...&#10;&#10;Пример структуры:&#10;1. Реквизиты отправителя и получателя&#10;2. Дата и исходящий номер&#10;3. Обращение&#10;4. Суть запроса (номер заявления, дата подачи)&#10;5. Просьба сообщить статус и дату решения&#10;6. Подпись"></textarea>
+            <div class="btn-group">
+                <button id="checkBtn"><i class="fas fa-check-circle"></i> Проверить запрос</button>
+                <button id="resetBtn" class="secondary"><i class="fas fa-undo-alt"></i> Сбросить</button>
+                <button id="showStandardBtn" class="secondary"><i class="fas fa-book-open"></i> Показать эталон</button>
+            </div>
+        </div>
+
+        <div class="results-panel" id="resultsPanel">
+            <div id="scoreboard">📊  Нажмите «Проверить» для оценки</div>
+            <div id="paragraphBreakdown"></div>
+            <div id="recommendations"></div>
+        </div>
+    </div>
+
+    <div class="history-panel">
+        <h4><i class="fas fa-history"></i> История попыток (последние 5)</h4>
+        <div id="historyList" class="history-list">Нет сохранённых попыток</div>
+    </div>
+</div>
+
+<div id="standardModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">
+                <h3>📜  Эталонный текст запроса в ФНС</h3>
+                <div class="help-icon" id="helpIconBtn">?</div>
+            </div>
+            <span class="close-modal">&times;</span>
+        </div>
+        <pre id="standardText"></pre>
+    </div>
+</div>
+
+<div id="tooltipOverlay" class="tooltip-overlay">
+    <div class="tooltip-card">
+        <strong>ℹ️  Что такое эталон?</strong>
+        <p><strong>Эталон</strong> — это идеальный (правильный) пример письма по данному сценарию.</p>
+        <p>📌  <strong>Зачем нужен:</strong><br>
+        • Образец для сравнения — проверьте, что упустили<br>
+18:06
+• Обучающий материал — посмотрите правильный стиль<br>
+        • Цель для самопроверки — скопируйте и проверьте (40/40)</p>
+        <p>💡  <strong>Совет:</strong> Напишите свой текст, сравните с эталоном и исправьте ошибки.</p>
+    </div>
+</div>
+
+<script>
+    const scenario = {
+        id: 1,
+        name: "Запрос о статусе регистрации юрлица",
+        description: "Запрос в ФНС о статусе заявления на регистрацию юридического лица",
+        requirements: "Официальный стиль, реквизиты, номер заявления №45678/2024, вежливость",
+        standardText: `Исх. № 102/05 от 20.05.2025
+
+Руководителю Межрайонной инспекции
+ФНС России № 15
+г. Москва, ул. Тверская, д. 11
+
+от генерального директора ООО «ЮрПроект»
+Петрова Петра Петровича
+тел.: +7 (495) 123-45-67
+e-mail: petrov@urproekt.ru
+
+Уважаемый руководитель!
+
+10 апреля 2024 года нами было подано заявление о государственной регистрации юридического лица (ООО «ЮрПроект») с присвоением входящего номера № 45678/2024.
+
+В соответствии с Административным регламентом ФНС России, срок рассмотрения подобных заявлений составляет 10 рабочих дней. На сегодняшний день указанный срок истёк, однако письменный ответ о принятом решении или о статусе рассмотрения в наш адрес не поступал.
+
+В связи с вышеизложенным, прошу Вас сообщить в письменной форме:
+1) текущий статус рассмотрения заявления № 45678/2024;
+2) дату принятия решения по данному заявлению.
+
+Ответ прошу направить на почтовый или электронный адрес, указанные выше.
+
+Благодарю Вас за содействие и своевременное решение вопроса.
+
+С уважением,
+
+Генеральный директор ООО «ЮрПроект»
+__________________ П.П. Петров`,
+
+        checklist: [
+            "✅ Исходящий номер и дата письма",
+            "✅ Полные реквизиты получателя (ФНС №15)",
+            "✅ Контакты заявителя (ФИО, должность, телефон, email)",
+            "✅ Номер и дата исходного заявления (№45678/2024 от 10.04.2024)",
+            "✅ Упоминание регламентного срока (10 рабочих дней)",
+            "✅ Чёткая просьба о статусе и дате решения",
+            "✅ Вежливое обращение и подпись"
+        ],
+       keywords: {
+    точность: [
+        /ФНС.*15/i, /№\s*45678\/2024/i, /10\s*апреля\s*2024/i, /10\.04\.2024/i,
+        /ООО «ЮрПроект»/i, /ООО "ЮрПроект"/i, /статус рассмотрения/i,
+        /Петрова Петра Петровича/i, /ЮрПроект/i, /45678\/2024/i
+    ],
+    юрграмотность: [
+        /10 рабочих дней/i, /регламент/i, /срок рассмотрения/i, 
+        /Административн\w*\s+регламент/i, /ФНС России/i, /государственной регистрации/i
+    ],
+    вежливость: [
+        /уважаемый/i, /прошу/i, /благодар/i, /с уважением/i, 
+        /сообщить в письменной форме/i, /Вас/i
+    ],
+    стиль: [
+        /исх\.?\s*№/i, /\d{2}\.\d{2}\.\d{4}/, /руководител[юь]/i, 
+        /генеральный директор/i, /Межрайонной инспекции/i, /ООО «/i
+    ]
+}
+    };
+
+    let lastCheckResult = null;
+    let attempts = [];
+
+    function loadAttempts() {
+        const stored = localStorage.getItem("lexcheck_attempts");
+        if(stored) attempts = JSON.parse(stored);
+        renderHistory();
+    }
+
+    function saveAttempt(text, score) {
+        const newAttempt = {
+            text: text.length > 300 ? text.slice(0,300)+"…" : text,
+            fullText: text,
+            date: new Date().toLocaleString(),
+            score: score,
+            scenarioId: 1
+        };
+        attempts.unshift(newAttempt);
+        if(attempts.length > 5) attempts.pop();
+        localStorage.setItem("lexcheck_attempts", JSON.stringify(attempts));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const container = document.getElementById("historyList");
+        if(!attempts.length) { 
+            container.innerHTML = "Нет сохранённых попыток"; 
+            return; 
+        }
+        container.innerHTML = attempts.map((a, idx) => `
+<div class="history-item" data-idx="${idx}" style="animation: fadeInUp 0.25s ease-out">
+                <i class="fas fa-undo-alt"></i> ${a.date} | Балл: ${a.score}/40
+            </div>
+        `).join('');
+        document.querySelectorAll('.history-item').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const idx = el.dataset.idx;
+                const full = attempts[idx].fullText;
+                document.getElementById('letterInput').value = full;
+                updateCharCount();
+                clearResultsDisplay();
+            });
+        });
+    }
+
+    function updateCharCount() {
+        const len = document.getElementById('letterInput').value.length;
+        const wordCount = document.getElementById('letterInput').value.split(/\s+/).filter(w => w.length > 0).length;
+        document.getElementById('charCount').innerHTML = `${len} знаков (слов: ${wordCount})`;
+    }
+
+    function clearResultsDisplay() {
+        document.getElementById('scoreboard').innerHTML = '📊  Нажмите «Проверить» для оценки';
+        document.getElementById('paragraphBreakdown').innerHTML = '';
+        document.getElementById('recommendations').innerHTML = '';
+    }
+
+    function renderChecklist() {
+        const container = document.getElementById('checklistContainer');
+        container.innerHTML = scenario.checklist.map((item, idx) => 
+            `<li style="animation-delay: ${idx * 0.05}s"><i class="fas fa-check-circle"></i> ${item}</li>`
+        ).join('');
+    }
+
+    function evaluateLetter(text) {
+        if(!text.trim()) return null;
+        
+        let точность = 0, стиль = 0, юрграмотность = 0, вежливость = 0;
+        const kw = scenario.keywords;
+        
+        // Точность (макс 10) — ищем все паттерны
+        let точнFound = 0;
+        kw.точность.forEach(pat => { if(pat.test(text)) точнFound++; });
+        let точнMax = kw.точность.length;
+        точность = Math.min(10, Math.floor((точнFound / точнMax) * 10));
+        // Дополнительная проверка на дату в текстовом формате
+        if(/10\s*апреля\s*2024/i.test(text)) точность = Math.min(10, точность + 2);
+        if(/Административн\w*\s+регламент/i.test(text)) юрграмотность = Math.min(10, юрграмотность + 2);
+        
+        // Стиль (макс 10)
+        let styleScore = 0;
+        if(/исх\.?\s*№/i.test(text)) styleScore += 3;
+        if(/\d{2}\.\d{2}\.\d{4}/.test(text)) styleScore += 3;
+        if(/(руководител|начальник|ФНС|инспекц|Межрайонной)/i.test(text)) styleScore += 2;
+        if(/ООО «/i.test(text)) styleScore += 2;
+        if(/(привет|здарова|короче|типа|нужно бы)/i.test(text)) styleScore -= 10;
+        // Если есть основные элементы, ставим 10
+        if(styleScore >= 8) стиль = 10;
+            else стиль = Math.min(10, Math.max(0, styleScore));
+        
+        // Юридическая грамотность (макс 10)
+        let юрScore = 3; // базовая оценка
+        kw.юрграмотность.forEach(pat => { if(pat.test(text)) юрScore += 3; });
+        // Дополнительные бонусы
+        if(/10 рабочих дней/i.test(text)) юрScore += 3;
+        if(/Административн\w*\s+регламент/i.test(text)) юрScore += 3;
+        if(/ФНС России/i.test(text)) юрScore += 2;
+        if(/государственной регистрации/i.test(text)) юрScore += 2;
+            юрграмотность = Math.min(10, Math.floor(юрScore));
+        
+        // Вежливость (макс 10)
+        let вежScore = 5;
+        kw.вежливость.forEach(pat => { if(pat.test(text)) вежScore += 1.2; });
+        // Дополнительная проверка на благодарность
+        if(/благодар/i.test(text)) вежScore += 1;
+            вежливость = Math.min(10, Math.floor(вежScore));
+        
+        // Проверка наличия номера заявления
+        if(!/№\s*45678\/2024/i.test(text) && !/45678\/2024/i.test(text)) {
+            точность = Math.max(0, точность - 2);
+        }
+        
+        // Проверка наличия регламента
+        if(!/10 рабочих дней/i.test(text)) {
+        юрграмотность = Math.max(0, юрграмотность - 2);
+        }   
+        // Проверка наличия фразы про регламент
+        if(!/Административн\w*\s+регламент/i.test(text)) {
+            юрграмотность = Math.max(0, юрграмотность - 1);
+        }
+        
+        const total = точность + стиль + юрграмотность + вежливость;
+        return { точность, стиль, юрграмотность, вежливость, total };
+    }
+    
+    function isTechnicalParagraph(para) {
+    // Абзацы, которые точно не должны проверяться
+    const technicalPatterns = [
+        /^исх\.?\s*№/i, /^руководител/i, /^от генерального директора/i,
+        /^тел\.:/i, /^e-mail:/i, /^с уважением,$/i, /^генеральный директор/i,
+        /^__________________/, /^\+7\s*\(/, /^Межрайонной инспекции/i,
+        /^г\. Москва/i, /^Уважаемый/i, /^С уважением/i,
+        /^Благодар/i  // <-- ДОБАВЛЕНО: абзацы с благодарностью не проверяем
+    ];
+    
+    for (let pattern of technicalPatterns) {
+        if (pattern.test(para.trim())) return true;
+    }
+    
+    // Короткие абзацы
+    if (para.length < 50) return true;
+    
+    return false;
+}
+
+    function getParagraphsAnalysis(text) {
+        let paragraphs = text.split(/\n\s*\n/);
+        if(paragraphs.length === 0 || (paragraphs.length === 1 && !paragraphs[0].trim())) 
+            paragraphs = [text];
+        paragraphs = paragraphs.filter(p => p.trim().length > 0);
+        
+        const analysis = [];
+        paragraphs.forEach((para, idx) => {
+            if(!para.trim()) return;
+            const isTechnical = isTechnicalParagraph(para);
+            let issues = [];
+            
+            if (!isTechnical && para.length > 30) {
+                const hasKeyPhrase = /прошу|сообщит|статус|рассмотрени|заявление|№\s*\d+|регламент|срок|ФНС|подано|регистрации|благодар/i.test(para);
+                if (!hasKeyPhrase && para.length > 40) {
+                    issues.push("⚠️  Абзац не содержит ключевых фраз");
+                }
+                if(/(привет|здарова|окей|короче|типа|жесть)/i.test(para)) 
+                    issues.push("❌ Неофициальная лексика");
+            }
+            
+            let colorClass = "green-bg";
+            if (issues.length === 1) colorClass = "yellow-bg";
+            if (issues.length >= 2) colorClass = "red-bg";
+            
+            let displayText = para.length > 200 ? para.substring(0, 200) + "…" : para;
+            analysis.push({ text: displayText, issues, colorClass, isTechnical });
+        });
+        return analysis;
+    }
+    
+    function getRecommendations(scores, text) {
+    let recs = [];
+    
+    // Проверка наличия всех ключевых элементов
+    const hasNumber = /№\s*45678\/2024/i.test(text) || /45678\/2024/i.test(text);
+    const hasDate = /10\.04\.2024/.test(text) || /10\s*апреля\s*2024/i.test(text) || /10 апреля 2024/.test(text) || /10 апреля 2024 года/.test(text);
+    const hasCompany = /ООО «ЮрПроект»/i.test(text) || /ООО "ЮрПроект"/i.test(text);
+    const hasFns = /ФНС.*15/i.test(text);
+    const hasOutgoing = /исх\.?\s*№/i.test(text);
+    const hasLetterDate = /\d{2}\.\d{2}\.\d{4}/.test(text);
+    const hasDeadline = /10 рабочих дней/i.test(text);
+    const hasReglament = /Административн\w*\s+регламент/i.test(text);
+    const hasPlease = /прошу/i.test(text);
+    const hasThanks = /благодар/i.test(text);
+    
+    if (!hasNumber) recs.push("📌 Укажите номер заявления: № 45678/2024");
+    if (!hasDate) recs.push("📅 Укажите дату подачи заявления: 10 апреля 2024");
+    if (!hasCompany) recs.push("🏢 Укажите название организации: ООО «ЮрПроект»");
+    if (!hasFns) recs.push("📌 Укажите полное название госоргана: Межрайонная инспекция ФНС России № 15");
+    if (!hasOutgoing) recs.push("✍️ Укажите исходящий номер письма");
+    if (!hasLetterDate) recs.push("📅 Укажите дату письма");
+    if (!hasDeadline) recs.push("⚖️ Упомяните срок 10 рабочих дней по регламенту ФНС");
+    // Проверяем, есть ли слово "регламент" в любом падеже
+    const hasAnyReglament = /регламент/i.test(text);
+    if (!hasAnyReglament) recs.push("⚖️ Сошлитесь на Административный регламент ФНС России");
+    if (!hasPlease) recs.push("🙏 Добавьте слово «прошу»");
+    if (!hasThanks) recs.push("🙏 Добавьте благодарность");
+    
+    if (recs.length === 0) recs = ["🎉 Отлично! Письмо соответствует всем требованиям и готово к отправке!"];
+    return recs;
+}
+    
+    function updateResultsPanel(scores, analysis, recommendations) {
+        const scoreHtml = `
+            <div class="score-table" style="animation: fadeInScale 0.3s ease-out">
+                <div class="score-row"><span>🎯  Точность формулировок:</span><b>${scores.точность}/10</b></div>
+                <div class="score-row"><span>📝  Стиль (официально-деловой):</span><b>${scores.стиль}/10</b></div>
+                <div class="score-row"><span>📚 Юридическая грамотность:</span><b>${scores.юрграмотность}/10</b></div>
+                <div class="score-row"><span>🤝  Вежливость/этикет:</span><b>${scores.вежливость}/10</b></div>
+                <div class="score-row total"><span>⭐ ИТОГОВЫЙ БАЛЛ:</span><b>${scores.total}/40</b></div>
+            </div>
+        `;
+let paraHtml = `<div class="paragraph-analysis"><h4>📑  Поабзацный разбор</h4>`;
+        if(analysis.length === 0) paraHtml += `<p>Нет текста для анализа</p>`;
+        analysis.forEach((p, idx) => {
+            let techNote = p.isTechnical ? " <span style='color:var(--text-secondary); font-size:0.7rem;'>(реквизиты/подпись)</span>" : "";
+            paraHtml += `<div class="para-card ${p.colorClass}" style="animation-delay: ${idx * 0.03}s"><strong>▸ Абзац:</strong> «${p.text}»${techNote}<br>`;
+            if(p.issues.length) 
+                paraHtml += `<span style="color:var(--warning);">⚠️  ${p.issues.join(", ")}</span>`;
+            else if(!p.isTechnical)
+                paraHtml += `<span style="color:var(--success);">✅ Корректный абзац</span>`;
+            else
+                paraHtml += `<span style="color:var(--text-secondary);">ℹ️  Технический абзац</span>`;
+            paraHtml += `</div>`;
+        });
+        paraHtml += `</div>`;
+        
+        let recHtml = `<div class="recommendation" style="animation: fadeInUp 0.35s ease-out"><h4><i class="fas fa-lightbulb"></i> Рекомендации</h4><ul>${recommendations.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+        
+        document.getElementById('scoreboard').innerHTML = scoreHtml;
+        document.getElementById('paragraphBreakdown').innerHTML = paraHtml;
+        document.getElementById('recommendations').innerHTML = recHtml;
+    }
+    
+    function onCheck() {
+        const text = document.getElementById('letterInput').value;
+        if(!text.trim()) {
+            alert("Введите текст запроса для проверки");
+            return;
+        }
+        const scores = evaluateLetter(text);
+        if(!scores) return;
+        const analysis = getParagraphsAnalysis(text);
+        const recommendations = getRecommendations(scores, text);
+        updateResultsPanel(scores, analysis, recommendations);
+        lastCheckResult = { text, scores };
+        saveAttempt(text, scores.total);
+    }
+    
+    function resetEditor() {
+        document.getElementById('letterInput').value = '';
+        updateCharCount();
+        clearResultsDisplay();
+    }
+    
+    function showStandardModal() {
+        const modal = document.getElementById('standardModal');
+        modal.classList.remove('closing');
+        document.getElementById('standardText').innerText = scenario.standardText;
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+    }
+    
+    function hideStandardModal() {
+        const modal = document.getElementById('standardModal');
+        modal.classList.add('closing');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.classList.remove('closing');
+        }, 200);
+    }
+    
+    function createRipple(x, y, isDarkTheme) {
+    const ripple = document.createElement('div');
+    ripple.className = 'theme-ripple';
+    ripple.style.left = (x - 100) + 'px';
+    ripple.style.top = (y - 100) + 'px';
+    ripple.style.width = '200px';
+    ripple.style.height = '200px';
+    // Цвет волны: белая для тёмной темы, тёмная для светлой
+    ripple.style.background = isDarkTheme ? '#ffffff' : '#0f172a';
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+}
+    
+    function initTheme() {
+        const isDark = localStorage.getItem('lexcheck_theme') === 'dark';
+        if(isDark) document.body.classList.add('dark');
+        
+        const themeBtn = document.getElementById('themeSwitch');
+        themeBtn.addEventListener('click', (e) => {
+            const rect = themeBtn.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            createRipple(x, y);
+            
+            setTimeout(() => {
+                document.body.classList.toggle('dark');
+                localStorage.setItem('lexcheck_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+            }, 50);
+        });
+    }
+    
+    function bindModalEvents() {
+const modal = document.getElementById('standardModal');
+        const closeBtn = document.querySelector('.close-modal');
+        const helpBtn = document.getElementById('helpIconBtn');
+        const tooltipOverlay = document.getElementById('tooltipOverlay');
+        
+        closeBtn.onclick = hideStandardModal;
+        window.onclick = (e) => { 
+            if(e.target === modal) hideStandardModal();
+            if(e.target === tooltipOverlay) {
+                tooltipOverlay.classList.remove('show');
+            }
+        };
+        document.getElementById('showStandardBtn').addEventListener('click', showStandardModal);
+        
+        helpBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            tooltipOverlay.classList.add('show');
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        renderChecklist();
+        loadAttempts();
+        initTheme();
+        bindModalEvents();
+        
+        const textarea = document.getElementById('letterInput');
+        textarea.addEventListener('input', updateCharCount);
+        document.getElementById('checkBtn').addEventListener('click', onCheck);
+        document.getElementById('resetBtn').addEventListener('click', resetEditor);
+        
+        updateCharCount();
+        clearResultsDisplay();
+    });
+</script>
+</body>
+</html>
